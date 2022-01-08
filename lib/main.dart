@@ -13,6 +13,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var _boardState = List.filled(9, TileState.EMPTY);
+
+  var _currentTurn = TileState.CROSS;
   // [[123] [456] [789]]
   @override
   Widget build(BuildContext context) {
@@ -51,11 +53,38 @@ class _MyAppState extends State<MyApp> {
                 return BoardTile(
                   tileState: tileState,
                   dimension: tileDimension,
-                  onPressed: () => print('Tapped index $tileIndex'),
+                  onPressed: () => _updateTileStateForIndex(tileIndex),
                 );
               }).toList(),
             );
           }).toList()));
     });
+  }
+
+  void _updateTileStateForIndex(int selectedIndex) {
+    if (_boardState[selectedIndex] == TileState.EMPTY) {
+      setState(() {
+        _boardState[selectedIndex] = _currentTurn;
+        _currentTurn = _currentTurn == TileState.CROSS
+            ? TileState.CIRCLE
+            : TileState.CROSS;
+      });
+
+      final winner = _findWinner();
+      if (winner != null) {
+        print('winnner is: $winner');
+      }
+    }
+  }
+
+  TileState _findWinner() {
+    TileState Function(int, int, int) winnerForMatch = (a, b, c) {
+      if (_boardState[a] != TileState.EMPTY) {
+        if ((_boardState[a] == _boardState[b]) &&
+            (_boardState[b] == _boardState[c])) {
+          return _boardState[a];
+        }
+      }
+    };
   }
 }
