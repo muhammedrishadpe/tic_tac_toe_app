@@ -12,6 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final navigatorKey = GlobalKey<NavigatorState>();
   var _boardState = List.filled(9, TileState.EMPTY);
 
   var _currentTurn = TileState.CROSS;
@@ -19,6 +20,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       home: Scaffold(
         body: Center(
           child: Stack(
@@ -111,15 +113,30 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _showWinnerDialog(TileState tileState) {
+    final context = navigatorKey.currentState.overlay.context;
     showDialog(
         context: context,
         builder: (_) {
           return AlertDialog(
             title: Text('Winner'),
             content: Image.asset(
-                Title == TileState.CROSS ? 'images/x.png' : 'images/o.png'),
-            actions: [FlatButton(onPressed: () {}, child: Text('New Game'))],
+                Title == TileState.CROSS ? 'images/o.png' : 'images/x.png'),
+            actions: [
+              FlatButton(
+                  onPressed: () {
+                    _resetGame();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('New Game'))
+            ],
           );
         });
+  }
+
+  void _resetGame() {
+    setState(() {
+      _boardState = List.filled(9, TileState.EMPTY);
+      _currentTurn = TileState.CROSS;
+    });
   }
 }
